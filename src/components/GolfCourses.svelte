@@ -109,6 +109,7 @@
     flex-wrap: wrap; /* wrap items to the next row */
     justify-content: center; /* distribute items evenly horizontally */
     margin: 0 auto;
+    padding: 0;
   }
   li {
     list-style-type: none;
