@@ -4,7 +4,6 @@
   import DistanceFilter from "./filters/DistanceFilter.svelte";
   import GolfCourse from "./GolfCourse.svelte";
   import GolfCourseList from "./GolfCourseList.svelte";
-  import { onMount } from "svelte";
 
   let selectedCourse;
   let inputValue = "";
@@ -26,6 +25,10 @@
     distanceValue = event.detail;
   }
 
+  function hideFilterCheckbox() {
+    filterCheckbox = false;
+  }
+
   $: filteredCourses = courses
     .filter((course) =>
       course.Course.toLowerCase().includes(inputValue.toLowerCase())
@@ -38,7 +41,12 @@
 <div class="course-list-container">
   <div class="navbar-container">
     <div class:hidden={!displayCourseList}>
-      <input type="text" bind:value={inputValue} placeholder="Sök bana" />
+      <input
+        type="text"
+        bind:value={inputValue}
+        on:input={hideFilterCheckbox}
+        placeholder="Sök bana"
+      />
     </div>
     <div id="distance-container" class:hidden={!displayCourseList}>
       <div class="checkbox-filter-container">
