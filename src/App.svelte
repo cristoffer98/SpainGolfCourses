@@ -15,7 +15,7 @@
 
   @media (min-width: 640px) {
     .main-layer-container {
-      max-width: none;
+      max-width: 1200px;
     }
   }
 </style>

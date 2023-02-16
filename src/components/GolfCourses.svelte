@@ -1,116 +1,148 @@
 <script>
   import { courses } from "../golf_data";
-  import AreaFilter from "./filters/AreaFilter.svelte";
-  import DistanceFilter from "./filters/DistanceFilter.svelte";
-  import GolfCourse from "./GolfCourse.svelte";
   import GolfCourseList from "./GolfCourseList.svelte";
+  import GolfCourse from "./GolfCourse.svelte";
 
-  let selectedCourse;
-  let inputValue = "";
-  let filteredCourses = courses;
+  let searchTerm = "";
+  let maxDistance = 90;
+  let maxHoles = 18;
+  let areaFilter = "";
+
+  let filteredCourses = courses.filter(
+    (course) =>
+      course.Area.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (areaFilter === course.Area || "All") &&
+      course.Distance <= maxDistance &&
+      course.Holes <= maxHoles
+  );
+
+  let selectedCourse = null;
   let displayCourseList = true;
-  let distanceValue = 80;
-  let filterCheckbox = false;
 
   function displayCourse(course) {
     selectedCourse = course;
     displayCourseList = false;
   }
+
   function returnToList() {
     selectedCourse = null;
     displayCourseList = true;
   }
 
-  function handleDistanceValueChange(event) {
-    distanceValue = event.detail;
+  function resetFields() {
+    location.reload();
   }
 
-  function hideFilterCheckbox() {
-    filterCheckbox = false;
-  }
-
-  $: filteredCourses = courses
-    .filter((course) =>
-      course.Course.toLowerCase().includes(inputValue.toLowerCase())
-    )
-    .filter((course) =>
-      filterCheckbox ? course.Distance <= distanceValue : true
+  function handleSearchTermInput(event) {
+    searchTerm = event.target.value;
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (areaFilter === course.Area || "All") &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
     );
+  }
+
+  function handleDistanceInput(event) {
+    maxDistance = event.target.value;
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (areaFilter === course.Area || "All") &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
+    );
+  }
+
+  function handleHolesInput(event) {
+    maxHoles = event.target.value;
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (areaFilter === course.Area || "All") &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
+    );
+  }
+
+  function handleAreaFilter(event) {
+    areaFilter = event.target.value;
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (areaFilter === course.Area || "All") &&
+        course.Area.toLowerCase().includes(areaFilter.toLowerCase()) &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
+    );
+  }
 </script>
 
-<div class="course-list-container">
-  <div class="navbar-container">
-    <div class:hidden={!displayCourseList}>
+<div>
+  {#if displayCourseList}
+    <div class="main-filter-container">
+      <label for="search">Sök:</label>
       <input
+        id="search"
         type="text"
-        bind:value={inputValue}
-        on:input={hideFilterCheckbox}
-        placeholder="Sök bana"
+        placeholder="Sök efter namn"
+        on:input={handleSearchTermInput}
       />
-    </div>
-    <div id="distance-container" class:hidden={!displayCourseList}>
-      <div class="checkbox-filter-container">
-        <h3><label for="checkboxFilter">Filtrera mera </label></h3>
-        <input type="checkbox" bind:checked={filterCheckbox} />
+      <div class="filter">
+        <label for="area">Område:</label>
+        <select id="area" on:change={handleAreaFilter}>
+          <option value="">All</option>
+          {#each Array.from(new Set(courses.map((course) => course.Area))) as area}
+            <option value={area}>{area}</option>
+          {/each}
+        </select>
+        <label for="distance">Avstånd:</label>
+        <input
+          type="range"
+          id="distance"
+          name="distance"
+          min="0"
+          max="90"
+          step="10"
+          value={maxDistance}
+          on:input={handleDistanceInput}
+        />
+        <output for="distance">{maxDistance} min</output>
+        <label for="holes">Antal hål:</label>
+        <input
+          type="range"
+          id="holes"
+          name="holes"
+          min="9"
+          max="18"
+          step="9"
+          value={maxHoles}
+          on:input={handleHolesInput}
+        />
+        <output for="holes">{maxHoles}</output>
       </div>
-      {#if filterCheckbox}
-        <div class="filter-container">
-          <!-- <AreaFilter /> -->
-          <DistanceFilter
-            {distanceValue}
-            on:distanceValueChange={handleDistanceValueChange}
-          />
-        </div>
-      {/if}
+      <button class="reset-button" on:click={resetFields}>Reset</button>
     </div>
-  </div>
-  {#if !displayCourseList}
+    <ul>
+      {#each filteredCourses as course}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <li on:click={() => displayCourse(course)}>
+          <GolfCourseList {...course} />
+        </li>
+      {/each}
+    </ul>
+  {:else}
     <button class="return-button" on:click={returnToList}>Return</button>
-  {/if}
-  <ul class:hidden={!displayCourseList}>
-    {#each filteredCourses as course}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <li on:click={() => displayCourse(course)}>
-        <GolfCourseList {...course} />
-      </li>
-    {/each}
-  </ul>
-  {#if selectedCourse}
     <GolfCourse {...selectedCourse} />
   {/if}
 </div>
 
 <style>
-  .hidden {
-    display: none;
-  }
-  .checkbox-filter-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 15px;
-    gap: 10px;
-  }
-  .filter-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .course-list-container {
+  .main-filter-container {
+    width: 80vh;
     margin: 0 auto;
-    margin-bottom: 40px;
-  }
-  .navbar-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  #distance-container {
-    padding: 30px;
-    flex-direction: row;
-  }
-  input[type="checkbox"] {
-    margin: 0;
+    margin-bottom: 20px;
   }
   ul {
     display: flex;
@@ -135,6 +167,19 @@
     cursor: pointer;
     scale: 1.05;
     transition: 0.3s;
+  }
+  .reset-button {
+    padding: 0.5rem 1rem;
+    background-color: rgb(221, 0, 0);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .reset-button:hover {
+    background-color: rgb(81, 0, 0);
   }
   .return-button {
     padding: 0.5rem 1rem;

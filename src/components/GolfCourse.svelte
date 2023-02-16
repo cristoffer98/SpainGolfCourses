@@ -12,7 +12,7 @@
 </script>
 
 <div>
-  <h3>{Course}</h3>
+  <h1>{Course}</h1>
   <table class="styled-table">
     <tbody>
       <tr>
@@ -57,12 +57,8 @@
 <img src={Image} alt="Image of {Course}" />
 
 <style>
-  * {
-    font-family: "Montserrat", sans-serif;
-  }
   .styled-table {
     border-collapse: collapse;
-    margin: 25px 0;
     padding: 10px;
     font-size: 0.9em;
     font-family: sans-serif;

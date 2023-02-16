@@ -1,10 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
-
   const dispatch = createEventDispatcher();
-
   export let distanceValue;
-
   function handleDistanceValueChange() {
     dispatch("distanceValueChange", distanceValue);
   }
