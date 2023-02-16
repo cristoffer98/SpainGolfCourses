@@ -140,7 +140,6 @@
 
 <style>
   .main-filter-container {
-    width: 80vh;
     margin: 0 auto;
     margin-bottom: 20px;
   }
