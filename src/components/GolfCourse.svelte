@@ -9,6 +9,7 @@
   export let Par;
   export let Golfhäftet;
   export let Price;
+  export let Holes;
 </script>
 
 <div>
@@ -26,6 +27,10 @@
       <tr>
         <td>Rank:</td>
         <td>{RankLeadingCourses}</td>
+      </tr>
+      <tr>
+        <td>Hål:</td>
+        <td>{Holes}</td>
       </tr>
       <tr>
         <td>Par:</td>

@@ -6,12 +6,14 @@
   let searchTerm = "";
   let maxDistance = 90;
   let maxHoles = 18;
-  let areaFilter = "";
+  let areaFilter;
+  let golfhaftetFilter = "";
 
   let filteredCourses = courses.filter(
     (course) =>
-      course.Area.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (areaFilter === course.Area || "All") &&
+      course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (areaFilter === course.Area || !areaFilter) &&
+      (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
       course.Distance <= maxDistance &&
       course.Holes <= maxHoles
   );
@@ -30,7 +32,20 @@
   }
 
   function resetFields() {
-    location.reload();
+    searchTerm = "";
+    maxDistance = 90;
+    maxHoles = 18;
+    areaFilter = "";
+    golfhaftetFilter = "";
+
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
+    );
   }
 
   function handleSearchTermInput(event) {
@@ -38,7 +53,8 @@
     filteredCourses = courses.filter(
       (course) =>
         course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (areaFilter === course.Area || "All") &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
         course.Distance <= maxDistance &&
         course.Holes <= maxHoles
     );
@@ -49,7 +65,8 @@
     filteredCourses = courses.filter(
       (course) =>
         course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (areaFilter === course.Area || "All") &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
         course.Distance <= maxDistance &&
         course.Holes <= maxHoles
     );
@@ -60,7 +77,8 @@
     filteredCourses = courses.filter(
       (course) =>
         course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (areaFilter === course.Area || "All") &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
         course.Distance <= maxDistance &&
         course.Holes <= maxHoles
     );
@@ -68,11 +86,23 @@
 
   function handleAreaFilter(event) {
     areaFilter = event.target.value;
+    console.log(areaFilter);
     filteredCourses = courses.filter(
       (course) =>
         course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (areaFilter === course.Area || "All") &&
-        course.Area.toLowerCase().includes(areaFilter.toLowerCase()) &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
+        course.Distance <= maxDistance &&
+        course.Holes <= maxHoles
+    );
+  }
+  function handleGolfhaftetFilter(event) {
+    golfhaftetFilter = event.target.value;
+    filteredCourses = courses.filter(
+      (course) =>
+        course.Course.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (!areaFilter || areaFilter === course.Area) &&
+        (!golfhaftetFilter || golfhaftetFilter === course.Golfhäftet) &&
         course.Distance <= maxDistance &&
         course.Holes <= maxHoles
     );
@@ -82,19 +112,30 @@
 <div>
   {#if displayCourseList}
     <div class="main-filter-container">
-      <label for="search">Sök:</label>
-      <input
-        id="search"
-        type="text"
-        placeholder="Sök efter namn"
-        on:input={handleSearchTermInput}
-      />
-      <div class="filter">
+      <div>
+        <label for="search">Sök:</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Sök efter namn"
+          on:input={handleSearchTermInput}
+        />
         <label for="area">Område:</label>
-        <select id="area" on:change={handleAreaFilter}>
+        <select id="area" value={areaFilter} on:change={handleAreaFilter}>
           <option value="">All</option>
           {#each Array.from(new Set(courses.map((course) => course.Area))) as area}
             <option value={area}>{area}</option>
+          {/each}
+        </select>
+        <label for="golfhaftet">Golfhäftet:</label>
+        <select
+          id="golfhaftet"
+          value={golfhaftetFilter}
+          on:change={handleGolfhaftetFilter}
+        >
+          <option value="">All</option>
+          {#each Array.from(new Set(courses.map((course) => course.Golfhäftet))) as gh}
+            <option value={gh}>{gh}</option>
           {/each}
         </select>
         <label for="distance">Avstånd:</label>
@@ -128,7 +169,13 @@
       {#each filteredCourses as course}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <li on:click={() => displayCourse(course)}>
-          <GolfCourseList {...course} />
+          <GolfCourseList
+            Course={course.Course}
+            Image={course.Image}
+            Distance={course.Distance}
+            Area={course.Area}
+            Holes={course.Holes}
+          />
         </li>
       {/each}
     </ul>
@@ -176,6 +223,7 @@
     font-weight: bold;
     cursor: pointer;
     margin-bottom: 20px;
+    margin-top: 20px;
   }
   .reset-button:hover {
     background-color: rgb(81, 0, 0);
